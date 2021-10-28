@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capston-deployment # deployment name
+  labels: # labels used to connect deployment to PODs (also used by Service to connect to PODs)
+    app: reactapp 
+spec:
+  replicas: 2
+  selector: # all labels matched by selector to create connection
+    matchLabels: 
+      app: reactapp
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1  
+    type: RollingUpdate
+    
+  template: # POD configuration
+    metadata:
+      labels: # match deployment to POD to connect (also used by Service)
+        app: reactapp # key-value pair
+    spec: # blueprint for a POD
+      containers:
+      - name: capston-pod-reactapp
+        image: wardahsana/capstone
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 3000
+        
+          
+   
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: capston-service # service name
+  labels:
+    app: reactapp
+spec:
+  selector: # selectors match labels to connect Service and deployment
+    app: reactapp
+  ports:
+    - port: 8000 #arbitrary port where service is accessible
+      targetPort: 3000 #application/container port
+  type: LoadBalancer
