@@ -10,7 +10,7 @@ pipeline {
             steps {
                   echo "Installing dependencies"
                   
-                  sh 'sudo npm install -g npm@latest'
+                  sh 'sudo apt install npm'
                   sh 'sudo npm install react'
                   
 
