@@ -22,7 +22,7 @@ spec:
     spec: # blueprint for a POD
       containers:
       - name: capston-pod-reactapp
-        image: wardahsana/capstone
+        image: heshamxq/flask-app
         imagePullPolicy: "Always"
         ports:
         - containerPort: 3000

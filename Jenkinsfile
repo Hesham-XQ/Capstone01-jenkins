@@ -5,14 +5,7 @@ pipeline {
 
     stages {  
         
-        stage('Cloning Git') {
-            steps {
-                git credentialsId: 'wardahsana', url: 'https://github.com/wardahsana/capstoneprojectudacity.git'
-        
-      }
-    }           
-      
-        
+           
         stage('Install dependencies') {
             steps {
                   echo "Installing dependencies"
@@ -42,30 +35,28 @@ pipeline {
             }
         }    
 
-        stage('Docker Build and Push Image') {  
+        stage('Build Green Docker Image') {
             steps {
-                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]) {
-                    sh '''#!/bin/bash
-                        sudo docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-                        sudo docker build -t capstone:new .
-                        sudo docker tag capstone:new wardahsana/capstone:new
-                        sudo docker push wardahsana/capstone:new
-                        
-                    '''  
-                }
+                sh 'docker build -t heshamxq/flask-app .'
             }
         }
-              
-              
-              
+
+        stage('Upload Green Image to Docker-Hub'){
+            steps{
+                sh 'docker login -u heshamxq -p Hpassvf@90'
+                sh 'docker push heshamxq/flask-app'
+            }
+        }
+
+                    
               
                     
         stage('Create kube config file and Deploy container to AWS EKS cluster') {
             steps {
-                withAWS(region: 'us-east-2', credentials: 'aws_access_id') {
-                    sh 'aws eks --region us-east-2 update-kubeconfig --name capstone'
-                    sh "kubectl config use-context arn:aws:eks:us-east-2:610575826472:cluster/capstone"
-                    sh "kubectl set image deployment/capston-deployment capston-pod-reactapp=wardahsana/capstone:new"
+                withAWS(region: 'us-east-1', credentials: '25967a97-5647-4269-a6cb-a88477ad3460') {
+                    sh 'aws eks --region us-east-1 update-kubeconfig --name UdacityCluster'
+                    sh "kubectl config use-context arn:aws:eks:us-east-1:089377575339:cluster/UdacityCluster"
+                    sh "kubectl set image deployment/capston-deployment capston-pod-reactapp=heshamxq/flask-app"
                     sh "kubectl apply -f deployment.yml"
                     sh "kubectl get nodes"
                     sh "kubectl get deployment"
